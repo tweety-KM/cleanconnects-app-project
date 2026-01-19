@@ -1,18 +1,19 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
   Container,
+  MenuItem,
   Paper,
   Stack,
   TextField,
   Typography,
-  MenuItem,
 } from "@mui/material";
+import { glassCard, backgroundGradient } from "../styles/glass";
 import { getCurrentUser } from "../services/auth";
-
-const SERVICE_AREA = "Randburg";
+import CalendarGrid from "../components/CalendarGrid";
+import TimeSlots from "../components/TimeSlots";
 
 const randburgAreas = [
   "Ferndale",
@@ -28,40 +29,64 @@ const randburgAreas = [
 const services = [
   "Standard Clean",
   "Deep Clean",
+  "Car Wash",
   "Laundry Assist",
+  "Carpet Cleaning",
+  "Couch Cleaning",
   "Move-in / Move-out Clean",
+  "Garden Cleanup",
 ] as const;
 
 export default function BookingNew() {
   const user = getCurrentUser();
+  const navigate = useNavigate();
 
   const [service, setService] = useState<(typeof services)[number]>("Standard Clean");
   const [suburb, setSuburb] = useState<(typeof randburgAreas)[number]>("Ferndale");
   const [addressLine, setAddressLine] = useState("");
   const [date, setDate] = useState(""); // YYYY-MM-DD
   const [time, setTime] = useState(""); // HH:MM
+  const [notes, setNotes] = useState("");
 
-  const canBook = useMemo(() => {
-    return (
-      !!user &&
-      user.verificationStatus === "VERIFIED" &&
-      addressLine.trim().length >= 5 &&
-      date.length > 0 &&
-      time.length > 0
-    );
-  }, [user, addressLine, date, time]);
+  const accentKey = user?.role === "cleaner" ? "green" : "blue";
+  const accent =
+    accentKey === "green"
+      ? "linear-gradient(135deg, #34c759, #7ee081)"
+      : "linear-gradient(135deg, #007aff, #4da3ff)";
+
+  const canContinue = useMemo(() => {
+    return addressLine.trim().length >= 5 && date.length > 0 && time.length > 0;
+  }, [addressLine, date, time]);
+
+  const handleContinue = () => {
+    const bookingDraft = {
+      service,
+      suburb,
+      addressLine: addressLine.trim(),
+      date,
+      time,
+      notes: notes.trim(),
+      createdAt: new Date().toISOString(),
+      areaConstraint: "Randburg-only MVP",
+    };
+
+    localStorage.setItem("cc_booking_draft", JSON.stringify(bookingDraft));
+
+    // ✅ Go to cleaner selection instead of showing alert
+    navigate("/cleaners");
+  };
 
   return (
-    <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", bgcolor: "#f4ecd8" }}>
+    <Box sx={backgroundGradient}>
       <Container maxWidth="sm">
-        <Paper sx={{ p: 4 }}>
-          <Stack spacing={2}>
-            <Typography variant="h4" fontWeight={900}>
+        <Paper sx={{ ...glassCard, p: 5 }}>
+          <Stack spacing={2.5}>
+            <Typography variant="h4" fontWeight={900} color="white">
               New Booking
             </Typography>
 
-            <Typography sx={{ color: "#333" }}>
-              Service area is limited to <b>{SERVICE_AREA}</b> for the MVP.
+            <Typography fontSize={13} color="white" sx={{ opacity: 0.85 }}>
+              Randburg-only MVP · Choose a service, date, and time.
             </Typography>
 
             <TextField
@@ -69,6 +94,13 @@ export default function BookingNew() {
               label="Service"
               value={service}
               onChange={(e) => setService(e.target.value as any)}
+              InputLabelProps={{ style: { color: "rgba(255,255,255,0.7)" } }}
+              sx={{
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.35)" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.6)" },
+                "& .MuiSvgIcon-root": { color: "rgba(255,255,255,0.8)" },
+                "& .MuiSelect-select": { color: "white" },
+              }}
             >
               {services.map((s) => (
                 <MenuItem key={s} value={s}>
@@ -82,6 +114,13 @@ export default function BookingNew() {
               label="Randburg suburb"
               value={suburb}
               onChange={(e) => setSuburb(e.target.value as any)}
+              InputLabelProps={{ style: { color: "rgba(255,255,255,0.7)" } }}
+              sx={{
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.35)" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.6)" },
+                "& .MuiSvgIcon-root": { color: "rgba(255,255,255,0.8)" },
+                "& .MuiSelect-select": { color: "white" },
+              }}
             >
               {randburgAreas.map((a) => (
                 <MenuItem key={a} value={a}>
@@ -91,41 +130,60 @@ export default function BookingNew() {
             </TextField>
 
             <TextField
-              label="Address line (street + number)"
+              label="Address line"
               value={addressLine}
               onChange={(e) => setAddressLine(e.target.value)}
               placeholder="e.g. 12 Example Street"
+              InputLabelProps={{ style: { color: "rgba(255,255,255,0.7)" } }}
+              sx={{
+                input: { color: "white" },
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.35)" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.6)" },
+              }}
             />
 
-            <Stack direction="row" spacing={2}>
-              <TextField
-                fullWidth
-                label="Date"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-              <TextField
-                fullWidth
-                label="Time"
-                type="time"
-                InputLabelProps={{ shrink: true }}
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-              />
-            </Stack>
+            {/* ✅ Glass calendar */}
+            <CalendarGrid value={date} onChange={setDate} accent={accentKey} />
 
-            <Button variant="contained" size="large" disabled={!canBook}>
-              Continue (Demo)
+            {/* ✅ Glass time chips */}
+            <TimeSlots value={time} onChange={setTime} accent={accentKey} />
+
+            <TextField
+              label="Extra notes (optional)"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              multiline
+              minRows={3}
+              InputLabelProps={{ style: { color: "rgba(255,255,255,0.7)" } }}
+              sx={{
+                textarea: { color: "white" },
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.35)" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.6)" },
+              }}
+            />
+
+            <Button
+              size="large"
+              disabled={!canContinue}
+              onClick={handleContinue}
+              sx={{
+                py: 1.5,
+                fontWeight: 900,
+                color: "white",
+                background: accent,
+                opacity: canContinue ? 1 : 0.55,
+              }}
+            >
+              Continue
             </Button>
 
-            <Typography sx={{ fontSize: 12, color: "#555" }}>
-              Note: This is a demo screen. Next we’ll implement cleaner matching + availability.
-            </Typography>
-
-            <Button component={Link} to="/dashboard" variant="text">
-              Back to dashboard
+            <Button
+              component={Link}
+              to="/dashboard"
+              variant="text"
+              sx={{ color: "rgba(255,255,255,0.85)" }}
+            >
+              Back to Dashboard
             </Button>
           </Stack>
         </Paper>

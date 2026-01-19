@@ -1,142 +1,91 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import {
-  Box,
-  Button,
-  Container,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import type { UserRole } from "../types/auth";
-import { signUpDemo } from "../services/auth";
-import { setRole as persistRole } from "../services/role";
-
-function normalizeRole(roleParam: string | undefined): UserRole {
-  return roleParam === "cleaner" ? "cleaner" : "customer";
-}
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-}
-
-function isValidPhone(phone: string) {
-  // Simple SA-friendly check (demo): allow +, digits, spaces
-  const cleaned = phone.trim();
-  return cleaned.length >= 9 && /^[+0-9\s-]+$/.test(cleaned);
-}
+import { useNavigate, useParams } from "react-router-dom";
+import { Box, Button, Container, Paper, Stack, TextField, Typography } from "@mui/material";
+import { glassCard, backgroundGradient } from "../styles/glass";
+import { createUser } from "../services/auth";
 
 export default function Signup() {
-  const { role: roleParam } = useParams<{ role: string }>();
-  const role = useMemo(() => normalizeRole(roleParam), [roleParam]);
+  const { role } = useParams();
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
 
-  const [touched, setTouched] = useState(false);
+  const normalizedRole = (role === "cleaner" ? "cleaner" : "customer") as "customer" | "cleaner";
 
-  const title = role === "cleaner" ? "Cleaner" : "Customer";
-  const subtitle =
-    role === "cleaner"
-      ? "Create your cleaner profile to start onboarding."
-      : "Create your account to request a cleaning service.";
+  const accent =
+    normalizedRole === "cleaner"
+      ? "linear-gradient(135deg, #34c759, #7ee081)"
+      : "linear-gradient(135deg, #007aff, #4da3ff)";
 
-  const fullNameOk = fullName.trim().length >= 2;
-  const emailOk = isValidEmail(email);
-  const phoneOk = isValidPhone(phone);
-
-  const formOk = fullNameOk && emailOk && phoneOk;
-
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setTouched(true);
-    if (!formOk) return;
-
-    // persist chosen role for the app
-    persistRole(role);
-
-    // demo signup (local storage). later: swap to Cognito
-    signUpDemo({ role, fullName, email, phone });
-
-    // go to verification status page
-    navigate("/verification");
-  }
+  const canContinue = useMemo(() => {
+    return fullName.trim().length >= 2 && email.trim().includes("@");
+  }, [fullName, email]);
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        bgcolor: "#f4ecd8",
-      }}
-    >
+    <Box sx={backgroundGradient}>
       <Container maxWidth="sm">
-        <Paper sx={{ p: 4 }}>
-          <Stack spacing={2}>
-            <Typography variant="h4" fontWeight={800}>
-              Sign up – {title}
+        <Paper sx={{ ...glassCard, p: 5 }}>
+          <Stack spacing={2.5}>
+            <Typography variant="h4" fontWeight={800} color="white">
+              Create account
             </Typography>
 
-            <Typography sx={{ color: "#444" }}>{subtitle}</Typography>
-
-            <Typography sx={{ fontSize: 13, color: "#333" }}>
-              Safety-first MVP: bookings are locked until verification is complete.
+            <Typography fontSize={14} color="white" sx={{ opacity: 0.85 }}>
+              Signing up as a <b>{normalizedRole}</b>
             </Typography>
 
-            <Box component="form" onSubmit={onSubmit}>
-              <Stack spacing={2} sx={{ mt: 2 }}>
-                <TextField
-                  label="Full name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  onBlur={() => setTouched(true)}
-                  required
-                  error={touched && !fullNameOk}
-                  helperText={
-                    touched && !fullNameOk ? "Please enter your full name." : " "
-                  }
-                />
+            <TextField
+              label="Full name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              fullWidth
+              InputLabelProps={{ style: { color: "rgba(255,255,255,0.7)" } }}
+              sx={{
+                input: { color: "white" },
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.35)" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.6)" },
+              }}
+            />
 
-                <TextField
-                  label="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onBlur={() => setTouched(true)}
-                  required
-                  error={touched && !emailOk}
-                  helperText={
-                    touched && !emailOk ? "Enter a valid email address." : " "
-                  }
-                />
+            <TextField
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+              InputLabelProps={{ style: { color: "rgba(255,255,255,0.7)" } }}
+              sx={{
+                input: { color: "white" },
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.35)" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.6)" },
+              }}
+            />
 
-                <TextField
-                  label="Phone number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  onBlur={() => setTouched(true)}
-                  required
-                  placeholder="e.g. 081 234 5678"
-                  error={touched && !phoneOk}
-                  helperText={
-                    touched && !phoneOk
-                      ? "Enter a valid phone number."
-                      : " "
-                  }
-                />
+            <Button
+              size="large"
+              disabled={!canContinue}
+              sx={{
+                py: 1.5,
+                fontWeight: 800,
+                color: "white",
+                background: accent,
+                opacity: canContinue ? 1 : 0.55,
+              }}
+              onClick={() => {
+                createUser({ fullName, email, role: normalizedRole });
+                navigate("/verification");
+              }}
+            >
+              Continue
+            </Button>
 
-                <Button type="submit" variant="contained" size="large" disabled={!formOk}>
-                  Create account
-                </Button>
-
-                <Button component={Link} to="/" variant="text">
-                  Back
-                </Button>
-              </Stack>
-            </Box>
+            <Button
+              variant="text"
+              sx={{ color: "rgba(255,255,255,0.85)" }}
+              onClick={() => navigate("/")}
+            >
+              Back
+            </Button>
           </Stack>
         </Paper>
       </Container>

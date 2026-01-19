@@ -1,78 +1,59 @@
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Container, Paper, Stack, Typography } from "@mui/material";
-import { setRole } from "../services/role";
-import logo from "../assets/logo.png";
+import { glassCard, backgroundGradient } from "../styles/glass";
 
 export default function RoleSelect() {
   const navigate = useNavigate();
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        bgcolor: "#0f0f0f",
-      }}
-    >
+    <Box sx={backgroundGradient}>
       <Container maxWidth="sm">
-        <Paper
-          elevation={0}
-          sx={{
-            p: 4,
-            bgcolor: "#111",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          <Stack spacing={3} alignItems="center">
-
-            {/* LOGO */}
-            <Box
-              component="img"
-              src={logo}
-              alt="CleanConnects logo"
-              sx={{
-                width: 140,
-                height: "auto",
-                mb: 1,
+        <Paper sx={{ ...glassCard, p: 5 }}>
+          <Stack spacing={4} alignItems="center">
+            {/* Logo served from /public/logo.png */}
+            <img
+              src="/logo.png"
+              alt="CleanConnects"
+              style={{
+                width: 240,
+                filter: "drop-shadow(0 0 18px rgba(255,255,255,0.35))",
               }}
             />
 
-            <Typography variant="h3" sx={{ color: "white", fontWeight: 700 }}>
-              CleanConnects
-            </Typography>
-
-            <Typography sx={{ color: "rgba(255,255,255,0.7)", textAlign: "center" }}>
+            <Typography variant="h5" fontWeight={600} color="white" textAlign="center">
               Choose how you want to use the app
             </Typography>
 
-            <Stack spacing={2} sx={{ width: "100%", mt: 2 }}>
+            <Stack spacing={2} width="100%">
               <Button
                 size="large"
                 variant="contained"
-                onClick={() => {
-                  setRole("customer");
-                  navigate("/signup/customer");
+                sx={{
+                  py: 1.6,
+                  fontWeight: 700,
+                  background: "linear-gradient(135deg, #007aff, #4da3ff)",
                 }}
+                onClick={() => navigate("/signup/customer")}
               >
-                I need a cleaner
+                I NEED A CLEANER
               </Button>
 
               <Button
                 size="large"
-                variant="outlined"
-                sx={{ color: "white", borderColor: "rgba(255,255,255,0.4)" }}
-                onClick={() => {
-                  setRole("cleaner");
-                  navigate("/signup/cleaner");
+                variant="contained"
+                sx={{
+                  py: 1.6,
+                  fontWeight: 700,
+                  background: "linear-gradient(135deg, #34c759, #7ee081)",
                 }}
+                onClick={() => navigate("/signup/cleaner")}
               >
-                I’m a cleaner
+                I’M A CLEANER
               </Button>
             </Stack>
 
-            <Typography sx={{ fontSize: 12, color: "rgba(255,255,255,0.5)", textAlign: "center" }}>
-              Safety-first MVP. Verification required before bookings.
+            <Typography sx={{ fontSize: 12, opacity: 0.75, color: "white", textAlign: "center" }}>
+              Safety-first MVP · Verification required
             </Typography>
           </Stack>
         </Paper>
