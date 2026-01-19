@@ -1,73 +1,123 @@
-# React + TypeScript + Vite
+CleanConnects — Safety-First Cleaning Services MVP
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+CleanConnects is a safety-focused, location-restricted cleaning services application built as a portfolio MVP.
+The app models a real-world service marketplace (similar to Uber-style flows) with role-based onboarding, verification-gated access, and location constraints to prioritise user safety.
 
-Currently, two official plugins are available:
+This project was intentionally designed and built step by step to demonstrate frontend engineering fundamentals, application architecture, and security-first thinking.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Live Demo
 
-## React Compiler
+(Coming soon — deployment via AWS Amplify / PWA install planned)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Problem Statement
+South Africa presents unique safety challenges for on-demand service platforms.
+This MVP explores how to prevent unsafe interactions by:
+- Blocking access until users are verified
+- Restricting services to a defined geographic area (Randburg)
+- Enforcing role-based onboarding (Customer vs Cleaner)
 
-## Expanding the ESLint configuration
+Features Implemented (MVP)
+Role-Based Onboarding
+- Users select whether they are a Customer or Cleaner
+- Signup flow dynamically adapts to the selected role
+  
+Verification-Gated Access
+- All users start in PENDING_VERIFICATION
+- Core features (dashboard, booking) are locked until VERIFIED
+- Route-level guards prevent bypassing verification
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+📍 Location Constraint (Randburg-Only)
+- Bookings are limited to Randburg suburbs only
+- Prevents unsafe, uncontrolled service expansion in early stages
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Protected Routing
+- Users cannot access protected routes without:
+- Being signed in
+- Having a VERIFIED status
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Demo Verification Controls
+- Admin-style verification state simulation
+- Enables testing of VERIFIED / REJECTED / SUSPENDED states
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**Tech Stack**
+React + TypeScript
+Vite
+Material UI (MUI)
+React Router
+LocalStorage (MVP Auth Simulation)
+Git & GitHub
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Project Structure**
+src/
+├── app/               # Routing configuration
+├── components/        # Route guards
+├── pages/             # Application screens
+├── services/          # Auth & role logic
+├── types/             # Shared TypeScript types
+└── assets/            # Branding & logo
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**Skills Demonstrated**
+- Frontend Engineering
+Component-based architecture
+Type-safe React development
+Controlled forms & validation
+Route protection logic
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
+- Application Design
+MVP scoping and feature prioritisation
+Safety-first UX decisions
+Role-based user flows
+
+- State & Logic Management
+Auth state simulation
+Verification status handling
+Conditional rendering and navigation
+
+- Developer Workflow
+Git version control
+Clean commit history
+Incremental feature development
+Debugging environment issues (Windows + Node)
+
+**Some Probelm Solving**
+- Situation
+While building the MVP, I encountered repeated issues where the development server would fail or Git commands would not work due to incorrect project directory context.
+
+- Task
+Identify the root cause of the issue and implement a permanent workflow fix rather than repeatedly applying temporary solutions.
+
+- Action
+Investigated how VS Code terminals initialise directories on Windows
+Ensured the project was always opened from the correct root folder
+Re-initialised Git properly inside the project directory
+Standardised terminal usage habits to avoid future errors
+
+- Result
+Eliminated recurring npm and Git errors
+Successfully committed and pushed the full MVP to GitHub
+Improved confidence working with development tooling and environments
+
+**Security & Safety Considerations (Planned)**
+Identity verification workflows
+Photo/selfie matching before bookings
+Monthly re-verification checks
+Abuse prevention (device & account blocking)
+Background check integrations (future phase)
+
+**Roadmap**
+AWS Amplify deployment
+PWA installability (iOS & Android)
+Cleaner availability & matching logic
+Payment integration (sandbox)
+Admin verification dashboard
+
+👩🏽‍💻 Author
+Koketso Matobako
+Aspiring Cloud & AI Engineer | Frontend Developer
+📍 South Africa
+
+**Disclaimer**
+This project is an MVP built for learning and portfolio purposes.
+No real services, payments, or personal data processing are active at this stage.
 ])
 ```
