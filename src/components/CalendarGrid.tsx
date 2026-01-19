@@ -7,9 +7,6 @@ function startOfMonth(d: Date) {
 function endOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0);
 }
-function addMonths(d: Date, n: number) {
-  return new Date(d.getFullYear(), d.getMonth() + n, 1);
-}
 function iso(d: Date) {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -33,7 +30,6 @@ export default function CalendarGrid({ value, onChange, accent }: Props) {
   const selected = value ? new Date(value + "T00:00:00") : null;
 
   const viewMonth = useMemo(() => {
-    // if selected, show its month; else show current month
     return selected ? startOfMonth(selected) : startOfMonth(today);
   }, [value]);
 
@@ -45,7 +41,7 @@ export default function CalendarGrid({ value, onChange, accent }: Props) {
     const start = startOfMonth(viewMonth);
     const end = endOfMonth(viewMonth);
 
-    const leading = start.getDay(); // 0-6
+    const leading = start.getDay();
     const arr: Date[] = [];
     for (let d = 1; d <= end.getDate(); d++) arr.push(new Date(viewMonth.getFullYear(), viewMonth.getMonth(), d));
 
@@ -58,15 +54,10 @@ export default function CalendarGrid({ value, onChange, accent }: Props) {
       : "linear-gradient(135deg, rgba(0,122,255,0.9), rgba(77,163,255,0.9))";
 
   const canSelect = (d: Date) => {
-    // no past dates
     const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     return d0 >= t0;
   };
-
-  // month navigation kept minimal: click title arrows via buttons
-  const prevMonth = addMonths(viewMonth, -1);
-  const nextMonth = addMonths(viewMonth, 1);
 
   return (
     <Box>
@@ -75,7 +66,7 @@ export default function CalendarGrid({ value, onChange, accent }: Props) {
           size="small"
           variant="text"
           sx={{ color: "rgba(255,255,255,0.85)" }}
-          onClick={() => onChange("")} // reset selection quickly (optional)
+          onClick={() => onChange("")}
         >
           Clear
         </Button>
@@ -90,7 +81,6 @@ export default function CalendarGrid({ value, onChange, accent }: Props) {
             variant="outlined"
             sx={{ color: "white", borderColor: "rgba(255,255,255,0.35)" }}
             onClick={() => {
-              // jump selection to same day in prev month if possible
               const base = selected ?? today;
               const d = new Date(base.getFullYear(), base.getMonth() - 1, Math.min(base.getDate(), 28));
               onChange(iso(d));
@@ -113,7 +103,6 @@ export default function CalendarGrid({ value, onChange, accent }: Props) {
         </Stack>
       </Stack>
 
-      {/* Glass calendar panel */}
       <Box
         sx={{
           p: 2,
